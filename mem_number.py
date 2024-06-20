@@ -1,0 +1,184 @@
+import pygame
+import random
+import sys
+
+pygame.init()
+
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GRAY = (200, 200, 200)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+
+font = pygame.font.Font(None, 50)
+
+class Button:
+    def __init__(self, x, y, width, height, color, text, action=None):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.color = color
+        self.text = text
+        self.action = action
+
+    def draw(self, surface):
+        pygame.draw.rect(surface, self.color, self.rect)
+        draw_text(self.text, font, BLACK, surface, self.rect.centerx, self.rect.centery)
+
+    def is_clicked(self, pos):
+        return self.rect.collidepoint(pos)
+
+def draw_text(text, font, color, surface, x, y):
+    textobj = font.render(text, True, color)
+    textrect = textobj.get_rect()
+    textrect.center = (x, y)
+    surface.blit(textobj, textrect)
+
+class SlidingNumberDisplay:
+    def __init__(self, screen, width, height, font):
+        self.screen = screen
+        self.width = width
+        self.height = height
+        self.font = font
+        self.color = BLACK
+        self.number = str(random.randint(0, 9))
+        self.x = self.width
+        self.y = 20
+        self.speed = 0.2
+
+    def draw(self):
+        text_surface = self.font.render(self.number, True, self.color)
+        self.screen.blit(text_surface, (self.x, self.y))
+        self.x -= self.speed
+        if self.x < -text_surface.get_width():
+            self.reset()
+
+    def reset(self):
+        self.number = str(random.randint(0, 9))
+        self.x = self.width
+
+class NumberPad:
+    def __init__(self):
+        self.screen_width = 440
+        self.screen_height = 650
+        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+        pygame.display.set_caption("Number Pad")
+
+        self.buttons = []
+        self.create_buttons()
+
+        self.sliding_number_display = SlidingNumberDisplay(self.screen, self.screen_width, self.screen_height, font)
+
+        # Initialize the text box
+        self.text_box = TextBox(50, 50, self.screen_width - 100, 50, font)
+
+    def create_buttons(self):
+        button_width = 100
+        button_height = 100
+        spacing = 20
+        start_x = 50
+        start_y = 150
+
+        number = 1
+        for row in range(3):
+            for col in range(3):
+                x = start_x + col * (button_width + spacing)
+                y = start_y + row * (button_height + spacing)
+                action = getattr(self, f'button_{number}_action')
+                self.buttons.append(Button(x, y, button_width, button_height, GRAY, str(number), action))
+                number += 1
+
+        # Add the 0, Delete, and Enter buttons
+        self.buttons.append(Button(start_x + button_width + spacing, start_y + 3 * (button_height + spacing), button_width, button_height, RED, "0", self.button_0_action))
+        self.buttons.append(Button(start_x, start_y + 3 * (button_height + spacing), button_width, button_height, BLUE, "Del", self.button_del_action))
+        self.buttons.append(Button(start_x + 2 * (button_width + spacing), start_y + 3 * (button_height + spacing), button_width, button_height, BLUE, "Enter", self.button_enter_action))
+
+    def run(self):
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+                    for button in self.buttons:
+                        if button.is_clicked(mouse_pos):
+                            if button.action:
+                                button.action()
+
+            self.screen.fill(WHITE)
+
+            self.sliding_number_display.draw()
+
+            for button in self.buttons:
+                button.draw(self.screen)
+            
+            # Draw the text box
+            self.text_box.draw(self.screen)
+
+            pygame.display.flip()
+
+        pygame.quit()
+        sys.exit()
+
+    def update_text_box(self, text):
+        self.text_box.update_text(text)
+
+    def button_1_action(self):
+        self.update_text_box("1")
+
+    def button_2_action(self):
+        self.update_text_box("2")
+
+    def button_3_action(self):
+        self.update_text_box("3")
+
+    def button_4_action(self):
+        self.update_text_box("4")
+
+    def button_5_action(self):
+        self.update_text_box("5")
+
+    def button_6_action(self):
+        self.update_text_box("6")
+
+    def button_7_action(self):
+        self.update_text_box("7")
+
+    def button_8_action(self):
+        self.update_text_box("8")
+
+    def button_9_action(self):
+        self.update_text_box("9")
+
+    def button_0_action(self):
+        self.update_text_box("0")
+
+    def button_del_action(self):
+        current_text = self.text_box.get_text()
+        if current_text:
+            self.text_box.set_text(current_text[:-1])
+
+    def button_enter_action(self):
+        print("Enter button clicked")
+
+class TextBox:
+    def __init__(self, x, y, width, height, font):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.color = WHITE
+        self.text = ""
+        self.font = font
+
+    def draw(self, surface):
+        pygame.draw.rect(surface, self.color, self.rect, 2)
+        draw_text(self.text, self.font, BLACK, surface, self.rect.centerx, self.rect.centery)
+
+    def update_text(self, new_text):
+        self.text = self.text + new_text
+    
+    def set_text(self, new_text):
+        self.text = new_text
+
+    def get_text(self):
+        return self.text
+
+if __name__ == "__main__":
+    NumberPad().run()
