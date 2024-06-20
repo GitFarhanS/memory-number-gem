@@ -1,5 +1,6 @@
 import pygame
 import random
+import time
 import sys
 
 pygame.init()
@@ -39,21 +40,26 @@ class SlidingNumberDisplay:
         self.height = height
         self.font = font
         self.color = BLACK
+        self.digits = 1
         self.number = str(random.randint(0, 9))
         self.x = self.width
         self.y = 20
-        self.speed = 0.2
+        self.speed = 0.1
 
     def draw(self):
         text_surface = self.font.render(self.number, True, self.color)
         self.screen.blit(text_surface, (self.x, self.y))
         self.x -= self.speed
-        if self.x < -text_surface.get_width():
-            self.reset()
+
 
     def reset(self):
-        self.number = str(random.randint(0, 9))
+        self.number = str(random.randint(10**(self.digits), 10**(self.digits+1)-1))
+        self.digits += 1
         self.x = self.width
+        self.draw()
+    
+    def get_value(self):
+        return self.number
 
 class NumberPad:
     def __init__(self):
@@ -92,6 +98,7 @@ class NumberPad:
         self.buttons.append(Button(start_x + 2 * (button_width + spacing), start_y + 3 * (button_height + spacing), button_width, button_height, BLUE, "Enter", self.button_enter_action))
 
     def run(self):
+        
         running = True
         while running:
             for event in pygame.event.get():
@@ -121,6 +128,12 @@ class NumberPad:
 
     def update_text_box(self, text):
         self.text_box.update_text(text)
+    
+    def set_text(self, text):
+        self.text_box.set_text(text)
+    
+    def get_text(self):
+        return self.text_box.get_text()
 
     def button_1_action(self):
         self.update_text_box("1")
@@ -153,12 +166,19 @@ class NumberPad:
         self.update_text_box("0")
 
     def button_del_action(self):
-        current_text = self.text_box.get_text()
+        current_text = self.get_text()
         if current_text:
-            self.text_box.set_text(current_text[:-1])
+            self.set_text(current_text[:-1])
 
     def button_enter_action(self):
-        print("Enter button clicked")
+        if self.get_text() != self.sliding_number_display.get_value():
+            print("Incorrect")
+            self.set_text("")
+        else:
+            print("Correct")
+            self.set_text("")
+            self.sliding_number_display.reset()
+
 
 class TextBox:
     def __init__(self, x, y, width, height, font):
