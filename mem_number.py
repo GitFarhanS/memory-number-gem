@@ -10,6 +10,7 @@ BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
+GREEN = (0, 255, 0)
 
 font = pygame.font.Font(None, 50)
 
@@ -50,7 +51,6 @@ class SlidingNumberDisplay:
         text_surface = self.font.render(self.number, True, self.color)
         self.screen.blit(text_surface, (self.x, self.y))
         self.x -= self.speed
-
 
     def reset(self):
         self.number = str(random.randint(10**(self.digits), 10**(self.digits+1)-1))
@@ -98,7 +98,6 @@ class NumberPad:
         self.buttons.append(Button(start_x + 2 * (button_width + spacing), start_y + 3 * (button_height + spacing), button_width, button_height, BLUE, "Enter", self.button_enter_action))
 
     def run(self):
-        
         running = True
         while running:
             for event in pygame.event.get():
@@ -125,6 +124,14 @@ class NumberPad:
 
         pygame.quit()
         sys.exit()
+
+    def flash_screen(self, color, duration=0.5):
+        original_surface = self.screen.copy()
+        self.screen.fill(color)
+        pygame.display.flip()
+        time.sleep(duration)
+        self.screen.blit(original_surface, (0, 0))
+        pygame.display.flip()
 
     def update_text_box(self, text):
         self.text_box.update_text(text)
@@ -173,9 +180,11 @@ class NumberPad:
     def button_enter_action(self):
         if self.get_text() != self.sliding_number_display.get_value():
             print("Incorrect")
+            self.flash_screen(RED)
             self.set_text("")
         else:
             print("Correct")
+            self.flash_screen(GREEN)
             self.set_text("")
             self.sliding_number_display.reset()
 
