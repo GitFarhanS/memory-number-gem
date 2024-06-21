@@ -38,7 +38,7 @@ Number Pad Game is a fun and interactive game where the player must enter number
 - The game continues indefinitely, with the difficulty increasing as the number of digits increases.
 
 
-[![Example Gameplay Video](https://raw.githubusercontent.com/GitFarhanS/memory-number-gem/main/videothumbnail.png)](https://github.com/GitFarhanS/memory-number-gem/blob/main/exampleGameply.mp4)
+[![Example Gameplay Video](https://raw.githubusercontent.com/GitFarhanS/memory-number-gem/main/exampleInGIF.gif)](https://github.com/GitFarhanS/memory-number-gem/blob/main/exampleGameply.mp4)
 
 
 ## Classes and Functions
