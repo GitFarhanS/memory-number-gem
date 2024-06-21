@@ -86,7 +86,7 @@ class NumberPad:
         self.screen_width = 440
         self.screen_height = 650
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
-        pygame.display.set_caption("Number Pad")
+        pygame.display.set_caption("Simple memory game")
 
         self.buttons = []
         self.create_buttons()
