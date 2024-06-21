@@ -58,8 +58,28 @@ class SlidingNumberDisplay:
         self.x = self.width
         self.draw()
     
+    def lost_round(self):
+        self.digits = 0
+        self.reset()
+    
     def get_value(self):
         return self.number
+
+class Score:
+    def __init__(self, x, y, font):
+        self.score = 0
+        self.x = x
+        self.y = y
+        self.font = font
+
+    def draw(self, surface):
+        draw_text(f"Score: {self.score}", self.font, BLACK, surface, self.x, self.y)
+
+    def increase(self):
+        self.score += 1
+
+    def reset(self):
+        self.score = 0
 
 class NumberPad:
     def __init__(self):
@@ -72,9 +92,9 @@ class NumberPad:
         self.create_buttons()
 
         self.sliding_number_display = SlidingNumberDisplay(self.screen, self.screen_width, self.screen_height, font)
-
-        # Initialize the text box
         self.text_box = TextBox(50, 50, self.screen_width - 100, 50, font)
+
+        self.score = Score(70, 630, font)
 
     def create_buttons(self):
         button_width = 100
@@ -120,12 +140,15 @@ class NumberPad:
             # Draw the text box
             self.text_box.draw(self.screen)
 
+            # Draw the score
+            self.score.draw(self.screen)
+
             pygame.display.flip()
 
         pygame.quit()
         sys.exit()
 
-    def flash_screen(self, color, duration=0.5):
+    def flash_screen(self, color, duration=0.2):
         original_surface = self.screen.copy()
         self.screen.fill(color)
         pygame.display.flip()
@@ -182,12 +205,14 @@ class NumberPad:
             print("Incorrect")
             self.flash_screen(RED)
             self.set_text("")
+            self.sliding_number_display.lost_round()
+            self.score.reset()  
         else:
             print("Correct")
             self.flash_screen(GREEN)
             self.set_text("")
             self.sliding_number_display.reset()
-
+            self.score.increase()
 
 class TextBox:
     def __init__(self, x, y, width, height, font):
